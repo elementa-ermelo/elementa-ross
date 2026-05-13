@@ -1,0 +1,191 @@
+# config.php
+<?php
+define("DB_HOST","host.docker.internal");
+define("DB_PORT","3306");
+define("DB_DATABASE","ros");
+define("DB_USER","ros");
+define("DB_PASSWORD","DZV94CobjOOpi");
+?>
+
+
+#databaseconnector.php
+
+<?php
+function connect_db() {
+    include __DIR__.'/config.php';
+    $con = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE, DB_PORT);
+    // Controleer connectie
+    if (mysqli_connect_errno()) {
+      echo "Failed to connect to MySQL: " . mysqli_connect_error();
+      exit();
+    }
+    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+    return $con;
+}
+?>
+
+#index.php
+<?php
+require_once 'databaseconnector.php';
+
+$db = connect_db();
+
+//$stmt = $db->prepare("SELECT * FROM kernen;");
+//if (!$stmt) {
+//      die("Query voorbereiding mislukt: " . $db->error);
+//}
+
+
+
+if(!isset($_COOKIE["ros_auth"])) {
+        require_once 'login.php';
+        die();
+} else {
+        if ($_COOKIE["ros_auth"] != "pjros:cardfile") {
+                require_once 'login.php';
+                die();
+        }
+}
+header('Location: /inventaris.php');
+die();
+
+
+//$stmt->bind_param("s", $page);
+//$stmt->execute();
+//$result = $stmt->get_result();
+//$row = $result->fetch_assoc();
+//var_dump($row);
+
+
+# inventaris.php
+<?php
+require_once 'databaseconnector.php';
+
+$db = connect_db();
+
+//$stmt = $db->prepare("SELECT * FROM kernen;");
+//if (!$stmt) {
+//      die("Query voorbereiding mislukt: " . $db->error);
+//}
+
+//$stmt->bind_param("s", $page);
+//$stmt->execute();
+//$result = $stmt->get_result();
+//$row = $result->fetch_assoc();
+//var_dump($row);
+?>
+<html><head><title>Kaartenbak P.J. Ros</title>
+<LINK href='abonn.css' type=text/css rel=STYLESHEET></head></body>
+<center><table width="850" border=0>
+<tr valign="top"><td colspan="3">
+<h2>Kaartenbak P.J. Ros</h2></td></tr>
+<tr valign="top"><td colspan="3"><a href="kaart.php?aktie=nieuw">Maak kaart aan</a></td></tr>
+<tr valign="top"><form name='y' action='inventaris.php' method='post'><td colspan="3"><input type='text' name='zoekstring'>&nbsp;<input type='submit' value='zoek' name='zoek'>
+
+<?php
+if (isset($_REQUEST['zoekstring'])) {
+        if ($_REQUEST['zoekstring'] == '*') {
+                echo '<br>alle kaarten zijn afgebeeld, klik op zoek voor een beperkter overzicht</form></td></tr>';
+                $stmt = $db->prepare("SELECT id, title FROM kernen ORDER BY title ASC");
+        } else if ($_REQUEST['zoekstring'] != '') {
+                echo '<br></form></td></tr>';
+                $stmt = $db->prepare("SELECT id, title FROM kernen ORDER BY title ASC"); //TODO ZOEKFUNCTIE
+        } else {
+                echo '<br>de laatste 30 kaarten zijn afgebeeld, tik * in voor het complete overzicht</form></td></tr>';
+                $stmt = $db->prepare("SELECT id, title FROM kernen ORDER BY title ASC LIMIT 30");
+        }
+} else {
+        echo '<br>de laatste 30 kaarten zijn afgebeeld, tik * in voor het complete overzicht</form></td></tr>';
+        $stmt = $db->prepare("SELECT id, title FROM kernen ORDER BY title ASC LIMIT 30");
+}
+if (!$stmt) {
+        die("Query voorbereiding mislukt: " . $db->error);
+}
+$stmt->execute();
+$result = $stmt->get_result();
+
+echo "<tr valign='top'><td width=''";
+$count=4;
+while ($row = $result->fetch_assoc()) {
+        if ($count = 4) {
+                echo "<td width='30%'>";
+                $count = 0;
+        }
+        echo "<table width=\"100%\" border=\"0\"><tbody><tr valign=\"top\"><td width=\"3\" align=\"left\"></td><td width=\"3\" align=\"left\"><a href=\"kaart.php?actie=wijzigen&amp;>
+        //echo "<a href='werklijstpdf.asp?id=" . $row['id'] . "'><img src='edit.gif' width='17' height='20' border='0'></a>";
+
+//response.write "<table width=""100%"" border=""0"">"
+//response.write "<tr valign=""top"">"
+
+//<!-- A href='werklijstpdf.asp?id=" & rstemp("id") & "'><img src=""pdflogo.gif"" width=""17"" height=""20"" border=""0""></a-->
+
+//response.write "<td width=""3"" align=""left""></td>"  
+//response.write "<td width=""3"" align=""left""><A href='kaart.asp?aktie=wijzigen&id=" & rstemp("id") & " " 
+//response.write "'><img src=""edit.gif"" width=""17"" height=""20"" border=""0"" border=""0"" alt=""wijzig""></a></td>"
+//response.write "<td align=""left"">" 
+
+//response.write "<A href='kaart.asp?id=" & rstemp("id") & "'>"
+//response.write trim(rstemp("titel")) 
+
+
+//response.write "</a>"
+
+//response.write "</td></tr></table>"
+        $count++;
+
+}
+?>
+</table>
+
+
+#index.php
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_REQUEST['f'] == "pjros" && $_REQUEST['h'] == "cardfile") {
+                setcookie("ros_auth", $_REQUEST['f'] . ':' . $_REQUEST['h']);
+                header('Location: /');
+                die();
+        } else {
+                $err = "Foutieve login";
+        }
+}
+?>
+<html>
+<head>
+<style> 
+body 
+{ 
+background-image: 
+url(logo2.jpg); 
+background-repeat: no-repeat; 
+background-position: center ; 
+
+background-attachment: fixed 
+} 
+</style> 
+
+<title>Kaartenbak P.J. Ros</title>
+<LINK href='abonn.css' type=text/css rel=STYLESHEET>
+</head>
+
+<body>
+<div align="center">
+<h1>Kaartenbak P.J. Ros</h1>
+<hr>
+<?php
+if (isset($err)) {
+        echo $err;
+}
+?>
+<form name="x" method="post" action="login.php"><table><tr><td><b>gebruikersnaam:</b></td><td><input type="text" name="f"></td></tr><tr><td><b>wachtwoord:</b></td><td><input type="p>
+        <script language=Javascript>self.x.f.focus();</script>
+</body>
+
+</html>
+
+
+
+
+
+
+
