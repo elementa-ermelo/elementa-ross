@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: /pages/inventaris.php');
         exit();
     } else {
-        $err = "❌ Foutieve gebruikersnaam of wachtwoord. Gebruik: pjros / cardfile";
+        $err = "❌ Foutieve gebruikersnaam of wachtwoord ";
     }
 }
 ?>
