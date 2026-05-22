@@ -10,7 +10,57 @@ if (!isset($_REQUEST['actie'])) {
 }
 
 $actie = $_REQUEST['actie'];
-$id = isset($_REQUEST['id']) ? $_REQUEST['id'] : null;
+$id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : null;
+
+// Verwijderen
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
+    if ($id) {
+        $stmt = $db->prepare("DELETE FROM kernen WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        if ($stmt->execute()) {
+            header('Location: inventaris.php');
+            exit();
+        }
+    }
+}
+
+// Opslaan (nieuw of wijzigen)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
+    $title = $_POST['title'];
+    $content = $_POST['content'] ?? '';
+    
+    if ($actie == 'nieuw') {
+        $stmt = $db->prepare("INSERT INTO kernen (title, content) VALUES (?, ?)");
+        $stmt->bind_param("ss", $title, $content);
+        if ($stmt->execute()) {
+            header('Location: inventaris.php');
+            exit();
+        }
+    } else if ($actie == 'wijzigen' && $id) {
+        $stmt = $db->prepare("UPDATE kernen SET title = ?, content = ? WHERE id = ?");
+        $stmt->bind_param("ssi", $title, $content, $id);
+        if ($stmt->execute()) {
+            header('Location: inventaris.php');
+            exit();
+        }
+    }
+}
+
+// Haal kaart op voor bewerken/bekijken
+$kaart = null;
+if ($id && ($actie == 'wijzigen' || $actie == 'bekijken')) {
+    $stmt = $db->prepare("SELECT id, title, content FROM kernen WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $kaart = $result->fetch_assoc();
+    $stmt->close();
+    
+    if (!$kaart) {
+        header('Location: inventaris.php');
+        exit();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -22,7 +72,7 @@ $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : null;
 </head>
 <body>
     <header>
-        <h1>📚 Kaartenbak P.J. Ros</h1>
+        <h1>📚 Kaartenbak P.J Em. Ds. Ros</h1>
         <nav>
             <a href="inventaris.php">← Terug naar Inventaris</a>
             <a href="kaart.php?actie=nieuw">+ Nieuwe Kaart</a>
@@ -35,39 +85,50 @@ $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : null;
             <?php
             if ($actie == 'nieuw') {
                 echo "<h2>➕ Nieuwe Kaart Toevoegen</h2>";
-                echo "<form method='post' action='kaart.php'>";
+                echo "<form method='post'>";
+                echo "<div class='form-group'>";
                 echo "<label for='title'>Titel:</label>";
-                echo "<input type='text' id='title' name='title' required>";
-                echo "<label for='content'>Inhoud:</label>";
-                echo "<textarea id='content' name='content'></textarea>";
+                echo "<input type='text' id='title' name='title' placeholder='Bijv: 01. Gen. 01' required>";
+                echo "</div>";
+                echo "<div class='form-group'>";
+                echo "<label for='content'>Verhaal / Inhoud:</label>";
+                echo "<textarea id='content' name='content' placeholder='Voer het verhaal hier in...' rows='15'></textarea>";
+                echo "</div>";
                 echo "<button type='submit' class='btn btn-primary'>💾 Opslaan</button>";
                 echo "</form>";
-            } else if ($actie == 'wijzigen' && $id) {
+            } else if ($actie == 'wijzigen' && $kaart) {
                 echo "<h2>✏️ Kaart Bewerken</h2>";
-                echo "<form method='post' action='kaart.php'>";
-                echo "<input type='hidden' name='id' value='" . htmlspecialchars($id) . "'>";
+                echo "<form method='post'>";
+                echo "<input type='hidden' name='id' value='" . $kaart['id'] . "'>";
+                echo "<div class='form-group'>";
                 echo "<label for='title'>Titel:</label>";
-                echo "<input type='text' id='title' name='title' required>";
-                echo "<label for='content'>Inhoud:</label>";
-                echo "<textarea id='content' name='content'></textarea>";
+                echo "<input type='text' id='title' name='title' value='" . htmlspecialchars($kaart['title']) . "' required>";
+                echo "</div>";
+                echo "<div class='form-group'>";
+                echo "<label for='content'>Verhaal / Inhoud:</label>";
+                echo "<textarea id='content' name='content' rows='15'>" . htmlspecialchars($kaart['content']) . "</textarea>";
+                echo "</div>";
                 echo "<div class='btn-group'>";
                 echo "<button type='submit' class='btn btn-primary'>💾 Opslaan</button>";
-                echo "<button type='button' class='btn btn-danger' onclick='if(confirm(\"Weet je zeker?\")) window.location=\"inventaris.php\";'>🗑️ Verwijderen</button>";
+                echo "<button type='submit' name='delete' value='1' class='btn btn-danger' onclick='return confirm(\"Weet je zeker dat je deze kaart wilt verwijderen?\");'>🗑️ Verwijderen</button>";
                 echo "</div>";
                 echo "</form>";
-            } else if ($actie == 'bekijken' && $id) {
-                echo "<h2>👁️ Kaart Details</h2>";
+            } else if ($actie == 'bekijken' && $kaart) {
+                echo "<h2>👁️ " . htmlspecialchars($kaart['title']) . "</h2>";
                 echo "<div class='info-box'>";
-                echo "<p><strong>ID:</strong> " . htmlspecialchars($id) . "</p>";
-                echo "<p><strong>Titel:</strong> Kaartgegevens laden...</p>";
-                echo "<p><strong>Inhoud:</strong> Kaartgegevens laden...</p>";
+                echo "<p><strong>ID:</strong> #" . $kaart['id'] . "</p>";
+                echo "<p><strong>Titel:</strong> " . htmlspecialchars($kaart['title']) . "</p>";
+                echo "</div>";
+                echo "<div style='background: white; padding: 20px; border-radius: 8px; margin: 20px 0;'>";
+                echo "<h3>Verhaal:</h3>";
+                echo "<p style='line-height: 1.8; white-space: pre-wrap;'>" . htmlspecialchars($kaart['content']) . "</p>";
                 echo "</div>";
                 echo "<div class='btn-group'>";
-                echo "<a href='kaart.php?actie=wijzigen&id=" . htmlspecialchars($id) . "' class='btn btn-primary'>✏️ Bewerken</a>";
+                echo "<a href='kaart.php?actie=wijzigen&id=" . $kaart['id'] . "' class='btn btn-primary'>✏️ Bewerken</a>";
                 echo "<a href='inventaris.php' class='btn btn-secondary'>← Terug</a>";
                 echo "</div>";
             } else {
-                echo "<div class='warning-box'>⚠️ Onbekende actie of ontbrekende ID</div>";
+                echo "<div class='warning-box'>⚠️ Onbekende actie of kaart niet gevonden</div>";
                 echo "<a href='inventaris.php' class='btn btn-secondary'>← Terug naar inventaris</a>";
             }
             ?>
@@ -78,4 +139,5 @@ $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : null;
         <p>&copy; 2026 Kaartenbak P.J. Ros - Alle rechten voorbehouden</p>
     </footer>
 </body>
+</html>
 </html>

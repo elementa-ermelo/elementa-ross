@@ -1,11 +1,14 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ($_REQUEST['f'] == "pjros" && $_REQUEST['h'] == "cardfile") {
-        setcookie("ros_auth", $_REQUEST['f'] . ':' . $_REQUEST['h']);
-        header('Location: /');
-        die();
+    $username = isset($_REQUEST['f']) ? trim($_REQUEST['f']) : '';
+    $password = isset($_REQUEST['h']) ? trim($_REQUEST['h']) : '';
+    
+    if ($username == "pjros" && $password == "cardfile") {
+        setcookie("ros_auth", $username . ':' . $password, 0, "/");
+        header('Location: /pages/inventaris.php');
+        exit();
     } else {
-        $err = "❌ Foutieve gebruikersnaam of wachtwoord";
+        $err = "❌ Foutieve gebruikersnaam of wachtwoord. Gebruik: pjros / cardfile";
     }
 }
 ?>
@@ -20,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="login-container">
         <div class="login-box">
-            <h2>📚 Kaartenbak P.J. Ros</h2>
+            <h2>📚 Kaartenbak P.J Em. Ds. Ros</h2>
             
             <?php
             if (isset($err)) {
@@ -28,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             ?>
             
-            <form name="x" method="post" action="login.php">
+            <form name="x" method="post" action="/auth/login.php">
                 <div class="form-group">
                     <label for="username">👤 Gebruikersnaam</label>
                     <input type="text" id="username" name="f" required autofocus>

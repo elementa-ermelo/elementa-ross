@@ -4,8 +4,8 @@ ini_set('display_errors', 1);
 
 // Probeer simpele verbinding
 $host = "localhost";
-$user = "ros";
-$password = "DZV94CobjOOpi";
+$user = "root";
+$password = "";
 
 $connect = mysqli_connect($host, $user, $password);
 

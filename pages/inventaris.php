@@ -13,7 +13,7 @@ $db = connect_db();
 </head>
 <body>
     <header>
-        <h1>📚 Kaartenbak P.J. Ros</h1>
+        <h1>📚 Kaartenbak P.J E.M D.S Ros</h1>
         <nav>
             <a href="inventaris.php">Inventaris</a>
             <a href="kaart.php?actie=nieuw">+ Nieuwe Kaart</a>
@@ -31,7 +31,7 @@ $db = connect_db();
             </div>
 
             <div class="search-bar">
-                <form method='post' style="display: flex; gap: 10px; width: 100%;">
+                <form method='get' style="display: flex; gap: 10px; width: 100%;">
                     <input type='text' name='zoekstring' placeholder='Zoek kaarten... (typ * voor alles)' value="<?php echo isset($_REQUEST['zoekstring']) ? htmlspecialchars($_REQUEST['zoekstring']) : ''; ?>">
                     <button type="submit" name="zoek">🔍 Zoeken</button>
                 </form>
@@ -102,3 +102,5 @@ $db = connect_db();
     </footer>
 </body>
 </html>
+
+
