@@ -39,7 +39,7 @@ mysqli_select_db($connect, "ros");
 $sql_create_table = "CREATE TABLE IF NOT EXISTS kernen (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL UNIQUE,
-    content LONGTEXT,
+    text LONGTEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
@@ -79,7 +79,7 @@ if ($row['count'] == 0) {
     ];
     
     foreach ($test_data as $title) {
-        $sql_insert = "INSERT IGNORE INTO kernen (title, content) VALUES ('" . mysqli_real_escape_string($connect, $title) . "', 'Inhoud hier...')";
+        $sql_insert = "INSERT IGNORE INTO kernen (title, text) VALUES ('" . mysqli_real_escape_string($connect, $title) . "', 'Inhoud hier...')";
         mysqli_query($connect, $sql_insert);
     }
     

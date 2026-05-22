@@ -32,7 +32,7 @@ $db = connect_db();
 
             <div class="search-bar">
                 <form method='get' style="display: flex; gap: 10px; width: 100%;">
-                    <input type='text' name='zoekstring' placeholder='Zoek kaarten... (typ * voor alles)' value="<?php echo isset($_REQUEST['zoekstring']) ? htmlspecialchars($_REQUEST['zoekstring']) : ''; ?>">
+                    <input type='text' name='zoekstring' placeholder='Zoek kaarten... (typ * voor alles)' value="<?php echo isset($_REQUEST['zoekstring']) ? htmlspecialchars($_REQUEST['zoekstring'] ?? '') : ''; ?>">
                     <button type="submit" name="zoek">🔍 Zoeken</button>
                 </form>
             </div>
@@ -44,7 +44,7 @@ $db = connect_db();
                     echo "<div class='info-box'>📋 Alle kaarten zijn afgebeeld</div>";
                     $stmt = $db->prepare("SELECT id, title FROM kernen ORDER BY title ASC");
                 } else if ($_REQUEST['zoekstring'] != '') {
-                    echo "<div class='info-box'>🔍 Zoekresultaten voor: <strong>" . htmlspecialchars($_REQUEST['zoekstring']) . "</strong></div>";
+                    echo "<div class='info-box'>🔍 Zoekresultaten voor: <strong>" . htmlspecialchars($_REQUEST['zoekstring'] ?? '') . "</strong></div>";
                     $stmt = $db->prepare("SELECT id, title FROM kernen WHERE title LIKE ? ORDER BY title ASC");
                     $search = "%" . $_REQUEST['zoekstring'] . "%";
                     $stmt->bind_param("s", $search);
@@ -66,7 +66,7 @@ $db = connect_db();
             }
 
             $result = $stmt->get_result();
-            
+
             if (!$result) {
                 die("<div class='warning-box'>❌ Result fout: " . $db->error . "</div>");
             }
@@ -76,18 +76,18 @@ $db = connect_db();
 
             if (count($kaarten) > 0) {
                 echo "<div class='cards-grid'>";
-                
+
                 foreach ($kaarten as $kaart) {
                     echo "<div class='card'>";
-                    echo "<div class='card-id'>#" . htmlspecialchars($kaart['id']) . "</div>";
-                    echo "<div class='card-title'>" . htmlspecialchars($kaart['title']) . "</div>";
+                    echo "<div class='card-id'>#" . htmlspecialchars($kaart['id'] ?? '') . "</div>";
+                    echo "<div class='card-title'>" . htmlspecialchars($kaart['title'] ?? '') . "</div>";
                     echo "<div class='card-actions'>";
-                    echo "<a href='kaart.php?actie=bekijken&id=" . htmlspecialchars($kaart['id']) . "' class='card-actions edit-btn'>👁️ Bekijken</a>";
-                    echo "<a href='kaart.php?actie=wijzigen&id=" . htmlspecialchars($kaart['id']) . "' class='card-actions edit-btn'>✏️ Bewerken</a>";
+                    echo "<a href='kaart.php?actie=bekijken&id=" . htmlspecialchars($kaart['id'] ?? '') . "' class='card-actions edit-btn'>👁️ Bekijken</a>";
+                    echo "<a href='kaart.php?actie=wijzigen&id=" . htmlspecialchars($kaart['id'] ?? '') . "' class='card-actions edit-btn'>✏️ Bewerken</a>";
                     echo "</div>";
                     echo "</div>";
                 }
-                
+
                 echo "</div>";
                 echo "<div class='info-box'>✅ " . count($kaarten) . " kaart(en) gevonden</div>";
             } else {
@@ -102,5 +102,3 @@ $db = connect_db();
     </footer>
 </body>
 </html>
-
-
