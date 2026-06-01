@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="login-container">
         <div class="login-box">
-            <h2>📚 Kaartenbak em vdm P.J. Ros</h2>
+            <h2>📚 Kaartenbak P.J. Ros em vdm </h2>
 
             <?php
             if (isset($err)) {

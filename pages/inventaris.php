@@ -13,7 +13,7 @@ $db = connect_db();
 </head>
 <body>
     <header>
-        <h1>📚 Kaartenbak em vdm P.J. Ros</h1>
+        <h1>📚 Kaartenbak P.J. Ros vdm em </h1>
         <nav>
             <a href="inventaris.php">Inventaris</a>
             <a href="kaart.php?actie=nieuw">+ Nieuwe Kaart</a>
