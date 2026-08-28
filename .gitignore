@@ -1,0 +1,4 @@
+# Inloggegevens horen niet in de repo (28 aug 2026, na het .git-lek).
+includes/config.php
+
+# De .git-map staat sinds 28 aug 2026 een niveau hoger, buiten de docroot.
